@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>BookForward — Give Every Book Another Chapter</title>
+  <meta name="description" content="Buy, sell and discover used educational books for school, college and competitive exams.">
+  <meta name="theme-color" content="#0d1120">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/scene.css">
+</head>
+<body>
+  <a class="skip" href="#app">Skip to content</a>
+  <header class="nav">
+    <div class="container">
+      <a class="brand" href="#/"><span class="logo" aria-hidden="true"></span>BookForward</a>
+      <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="navLinks">☰</button>
+      <nav class="nav-links" id="navLinks" aria-label="Main"></nav>
+    </div>
+  </header>
+  <main class="container" id="app" tabindex="-1" aria-live="polite"></main>
+  <footer class="footer"><div class="container row between"><span>© BookForward — Give Every Book Another Chapter.</span><span class="small">Educational book reuse marketplace</span></div></footer>
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+  <!-- STOMP client (pinned). Vendor this file locally for fully offline/air-gapped deployments. -->
+  <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js" crossorigin="anonymous"></script>
+  <script src="env.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

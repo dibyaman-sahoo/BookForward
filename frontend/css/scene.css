@@ -1,0 +1,25 @@
+/* 3D hero, tilt cards, page transitions. All motion is disabled for reduced-motion users. */
+.hero { display: grid; grid-template-columns: 1.1fr .9fr; gap: 2rem; align-items: center; min-height: 520px; padding-block: 1rem; } @media (max-width: 860px) { .hero { grid-template-columns: 1fr; text-align: center; } .hero .row { justify-content: center; } }
+.hero h1 em { font-style: normal; background: linear-gradient(120deg, var(--accent), #ff8b5a 55%, var(--accent-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.stage { perspective: 1100px; height: 440px; display: grid; place-items: center; position: relative; } @media (max-width: 860px) { .stage { height: 340px; transform: scale(.82); } }
+.stage::after { content: ""; position: absolute; bottom: 40px; width: 70%; height: 30px; background: radial-gradient(ellipse, rgba(0,0,0,.55), transparent 70%); filter: blur(6px); }
+.shelf { position: relative; width: 150px; height: 210px; transform-style: preserve-3d; animation: orbit 16s linear infinite; }
+.book3d { --w: 150px; --h: 210px; --d: 38px; --c1: #f6b94a; --c2: #e0702d; position: absolute; width: var(--w); height: var(--h); transform-style: preserve-3d; left: 0; top: 0; }
+.book3d > div { position: absolute; backface-visibility: hidden; }
+.book3d .f { width: var(--w); height: var(--h); transform: translateZ(calc(var(--d) / 2)); background: linear-gradient(145deg, var(--c1), var(--c2)); border-radius: 3px 8px 8px 3px; padding: 18px 14px; font-family: var(--display); color: rgba(20,12,0,.9); font-weight: 700; font-size: 1.1rem; box-shadow: inset 6px 0 8px rgba(0,0,0,.2); }
+.book3d .f small { display: block; margin-top: .6rem; font-family: var(--font); font-weight: 500; font-size: .66rem; opacity: .8; letter-spacing: .08em; text-transform: uppercase; }
+.book3d .b { width: var(--w); height: var(--h); transform: rotateY(180deg) translateZ(calc(var(--d) / 2)); background: var(--c2); border-radius: 8px 3px 3px 8px; }
+.book3d .s { width: var(--d); height: var(--h); left: calc((var(--w) - var(--d)) / 2); transform: rotateY(-90deg) translateZ(calc(var(--w) / 2)); background: linear-gradient(180deg, var(--c2), var(--c1)); }
+.book3d .p { width: var(--d); height: var(--h); left: calc((var(--w) - var(--d)) / 2); transform: rotateY(90deg) translateZ(calc(var(--w) / 2)); background: repeating-linear-gradient(90deg, #f4ecd8 0 2px, #d9cfb6 2px 3px); }
+.book3d .t, .book3d .m { width: var(--w); height: var(--d); top: calc((var(--h) - var(--d)) / 2); background: repeating-linear-gradient(0deg, #f4ecd8 0 2px, #d9cfb6 2px 3px); }
+.book3d .t { transform: rotateX(90deg) translateZ(calc(var(--h) / 2)); } .book3d .m { transform: rotateX(-90deg) translateZ(calc(var(--h) / 2)); }
+.book3d.one { transform: translate3d(-120px, 30px, 20px) rotateY(-18deg) rotateZ(-3deg); animation: bob 6s ease-in-out infinite; }
+.book3d.two { --c1: #46d1b3; --c2: #1d7f9c; transform: translate3d(0, -50px, -30px) rotateY(12deg) rotateZ(4deg); animation: bob 7s ease-in-out -2s infinite; }
+.book3d.three { --c1: #9d8cff; --c2: #5646c9; transform: translate3d(120px, 40px, 10px) rotateY(24deg) rotateZ(-2deg); animation: bob 8s ease-in-out -4s infinite; }
+@keyframes orbit { from { transform: rotateX(-12deg) rotateY(-30deg); } 50% { transform: rotateX(-6deg) rotateY(30deg); } to { transform: rotateX(-12deg) rotateY(-30deg); } }
+@keyframes bob { 50% { translate: 0 -14px; } }
+.tilt { transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(0); transition: transform .18s ease-out, box-shadow .25s; will-change: transform; } .tilt:hover { box-shadow: 0 28px 50px -22px rgba(0,0,0,.75), 0 0 0 1px color-mix(in srgb, var(--accent) 40%, transparent); }
+.page-enter { animation: pageIn .45s cubic-bezier(.2,.8,.2,1) both; } @keyframes pageIn { from { opacity: 0; transform: translateY(14px) scale(.995); } }
+.reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s, transform .6s; } .reveal.in { opacity: 1; transform: none; }
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; } .step .n { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 12px; background: linear-gradient(135deg, var(--accent), #ee8a3a); color: var(--accent-ink); font-weight: 800; margin-bottom: .6rem; transform: rotate(-6deg); }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; } .reveal { opacity: 1; transform: none; } .shelf { transform: rotateX(-10deg) rotateY(-20deg); } }
