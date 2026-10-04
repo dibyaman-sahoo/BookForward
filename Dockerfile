@@ -12,6 +12,6 @@ USER bookforward
 WORKDIR /app
 COPY --from=build /src/target/bookforward-backend-1.0.0.jar app.jar
 ENV STORAGE_LOCAL_DIR=/data/uploads
-EXPOSE 8080
-HEALTHCHECK --interval=30s --timeout=5s --start-period=40s CMD wget -qO- http://localhost:8080/actuator/health/liveness || exit 1
+EXPOSE 9090
+HEALTHCHECK --interval=30s --timeout=5s --start-period=40s CMD wget -qO- http://localhost:9090/actuator/health/liveness || exit 1
 ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75", "-jar", "app.jar"]
