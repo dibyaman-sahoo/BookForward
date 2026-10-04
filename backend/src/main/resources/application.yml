@@ -1,0 +1,69 @@
+spring:
+  application:
+    name: bookforward
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/bookforward}
+    username: ${DB_USERNAME:bookforward}
+    password: ${DB_PASSWORD:}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: ${HIBERNATE_DDL_AUTO:validate}
+    properties:
+      hibernate:
+        jdbc.time_zone: UTC
+        default_batch_fetch_size: 50
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 6MB
+server:
+  port: ${SERVER_PORT:8080}
+  shutdown: graceful
+  forward-headers-strategy: framework
+  error:
+    include-stacktrace: never
+    include-message: never
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: never
+  health:
+    livenessstate.enabled: true
+    readinessstate.enabled: true
+logging:
+  level:
+    root: ${LOG_LEVEL:INFO}
+  pattern:
+    level: "%5p [cid=%X{cid:-}]"
+bookforward:
+  env: ${APP_ENV:dev}
+  frontend-origin: ${FRONTEND_ORIGIN:http://localhost:5173}
+  ws-allowed-origins: ${WS_ALLOWED_ORIGINS:http://localhost:5173}
+  jwt:
+    secret: ${JWT_SECRET:}
+    expiry-minutes: ${JWT_EXPIRY_MINUTES:120}
+  storage:
+    provider: ${STORAGE_PROVIDER:local}
+    local-dir: ${STORAGE_LOCAL_DIR:./data/uploads}
+    max-bytes: ${STORAGE_MAX_BYTES:5242880}
+  payment:
+    enabled: ${PAYMENT_ENABLED:false}
+    provider: ${PAYMENT_PROVIDER:offline}
+  rate-limit:
+    auth-per-minute: ${RATE_AUTH_PER_MIN:20}
+    upload-per-minute: ${RATE_UPLOAD_PER_MIN:30}
+    messages-per-minute: ${RATE_MESSAGES_PER_MIN:60}
+  bootstrap-admin:
+    email: ${ADMIN_EMAIL:}
+    password: ${ADMIN_PASSWORD:}
+    name: ${ADMIN_NAME:Platform Admin}
