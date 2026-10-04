@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: bookforward
+      POSTGRES_USER: ${DB_USERNAME:-bookforward}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set DB_PASSWORD in .env}
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-bookforward} -d bookforward"]
+      interval: 5s
+      retries: 10
+  backend:
+    build: { context: ., dockerfile: Dockerfile }
+    depends_on: { db: { condition: service_healthy } }
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/bookforward
+      DB_USERNAME: ${DB_USERNAME:-bookforward}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?set JWT_SECRET (32+ chars) in .env}
+      FRONTEND_ORIGIN: ${FRONTEND_ORIGIN:-http://localhost:5173}
+      WS_ALLOWED_ORIGINS: ${WS_ALLOWED_ORIGINS:-http://localhost:5173}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      PAYMENT_ENABLED: ${PAYMENT_ENABLED:-false}
+      APP_ENV: ${APP_ENV:-docker}
+    ports: ["8080:8080"]
+    volumes: [uploads:/data/uploads]
+  frontend:
+    build: ./frontend
+    environment:
+      API_BASE_URL: ${API_BASE_URL:-http://localhost:8080}
+    ports: ["5173:80"]
+    depends_on: [backend]
+  redis:            # optional; not used by the default in-memory adapters (Redis-ready boundary)
+    image: redis:7-alpine
+    profiles: ["redis"]
+volumes:
+  pgdata:
+  uploads:
