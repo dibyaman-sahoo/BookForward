@@ -24,12 +24,12 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
       PAYMENT_ENABLED: ${PAYMENT_ENABLED:-false}
       APP_ENV: ${APP_ENV:-docker}
-    ports: ["8080:8080"]
+    ports: ["9090:8080"]
     volumes: [uploads:/data/uploads]
   frontend:
     build: ./frontend
     environment:
-      API_BASE_URL: ${API_BASE_URL:-http://localhost:8080}
+      API_BASE_URL: ${API_BASE_URL:-http://localhost:9090}
     ports: ["5173:80"]
     depends_on: [backend]
   redis:            # optional; not used by the default in-memory adapters (Redis-ready boundary)

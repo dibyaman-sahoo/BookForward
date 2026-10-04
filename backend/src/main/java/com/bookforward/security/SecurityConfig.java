@@ -1,5 +1,6 @@
 package com.bookforward.security;
 
+import org.springframework.context.annotation.Primary;
 import com.bookforward.config.AppProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
@@ -32,29 +33,30 @@ public class SecurityConfig {
                                     AppProperties props, ObjectMapper mapper, CorsConfigurationSource cors) throws Exception {
         var jwtFilter = new JwtAuthFilter(authenticator);
         http.csrf(c -> c.disable()) // stateless bearer-token API, no cookies are used for auth
-            .cors(c -> c.configurationSource(cors))
-            .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .headers(h -> h.frameOptions(f -> f.deny()).contentTypeOptions(c -> {}))
-            .exceptionHandling(e -> e
-                .authenticationEntryPoint((req, res, ex) -> write(mapper, res, 401, "UNAUTHENTICATED",
-                        "Please sign in to continue", req.getRequestURI()))
-                .accessDeniedHandler((req, res, ex) -> write(mapper, res, 403, "FORBIDDEN",
-                        "You do not have permission to do that", req.getRequestURI())))
-            .authorizeHttpRequests(a -> a
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .requestMatchers("/actuator/health/**", "/actuator/info").permitAll()
-                .requestMatchers("/ws/**").permitAll() // STOMP frames are authenticated in StompAuthInterceptor
-                .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/listings", "/api/listings/*", "/api/listings/*/reviews",
-                        "/api/search/**", "/api/categories", "/api/files/**", "/api/config").permitAll()
-                .requestMatchers("/api/admin/**").hasAnyRole("MODERATOR", "ADMIN")
-                .anyRequest().authenticated())
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterAfter(new RateLimitFilter(limiter, props, mapper), JwtAuthFilter.class);
+                .cors(c -> c.configurationSource(cors))
+                .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .headers(h -> h.frameOptions(f -> f.deny()).contentTypeOptions(c -> {}))
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint((req, res, ex) -> write(mapper, res, 401, "UNAUTHENTICATED",
+                                "Please sign in to continue", req.getRequestURI()))
+                        .accessDeniedHandler((req, res, ex) -> write(mapper, res, 403, "FORBIDDEN",
+                                "You do not have permission to do that", req.getRequestURI())))
+                .authorizeHttpRequests(a -> a
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .requestMatchers("/actuator/health/**", "/actuator/info").permitAll()
+                        .requestMatchers("/ws/**").permitAll() // STOMP frames are authenticated in StompAuthInterceptor
+                        .requestMatchers(HttpMethod.POST, "/api/auth/register", "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/listings", "/api/listings/*", "/api/listings/*/reviews",
+                                "/api/search/**", "/api/categories", "/api/files/**", "/api/config").permitAll()
+                        .requestMatchers("/api/admin/**").hasAnyRole("MODERATOR", "ADMIN")
+                        .anyRequest().authenticated())
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(new RateLimitFilter(limiter, props, mapper), JwtAuthFilter.class);
         return http.build();
     }
 
     @Bean
+    @Primary
     CorsConfigurationSource corsConfigurationSource(AppProperties props) {
         CorsConfiguration c = new CorsConfiguration();
         c.setAllowedOrigins(Arrays.stream(props.frontendOrigin().split(",")).map(String::trim).toList());
