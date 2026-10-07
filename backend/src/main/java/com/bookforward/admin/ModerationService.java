@@ -104,9 +104,9 @@ public class ModerationService {
                 if (l.getStatus() != ListingStatus.HIDDEN && l.getStatus() != ListingStatus.REJECTED) {
                     throw ApiException.conflict("INVALID_STATE", "Only hidden or rejected listings can be approved");
                 }
-                long types = images.findByListingIdOrderByDisplayOrderAsc(listingId).stream().map(ListingImage::getImageType)
-                        .filter(t -> t != ImageType.EXTRA).distinct().count();
-                if (types < 3) throw ApiException.unprocessable("MISSING_EVIDENCE_IMAGES", "Listing lacks the three evidence images");
+                boolean hasCover = images.findByListingIdOrderByDisplayOrderAsc(listingId).stream()
+                        .anyMatch(i -> i.getImageType() == ImageType.FRONT_COVER);
+                if (!hasCover) throw ApiException.unprocessable("MISSING_EVIDENCE_IMAGES", "Listing lacks a front cover photo");
                 l.setStatus(ListingStatus.ACTIVE);
                 l.setModerationReason(null);
             }
