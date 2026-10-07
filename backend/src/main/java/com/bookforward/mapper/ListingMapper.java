@@ -25,10 +25,10 @@ public class ListingMapper {
     }
 
     public ListingSummaryDto summary(Listing l, String coverUrl) {
-        return new ListingSummaryDto(l.getId(), l.getTitle(), l.getAuthor(), l.getPrice(), l.getBookCondition(),
+        return new ListingSummaryDto(l.getId(), l.getTitle(), l.getAuthor() == null ? "" : l.getAuthor(), l.getPrice(), l.getBookCondition(),
                 l.getAcademicLevel(), l.getBoard(), l.isNcertApplicable(), l.getCategory().getName(),
                 l.getCategory().getSlug(), l.getStatus(), coverUrl, l.getSeller().getId(),
-                l.getSeller().getDisplayName(), l.getCreatedAt());
+                l.getSeller().getDisplayName(), l.getCreatedAt(), l.getCity(), l.getState());
     }
 
     public List<ListingSummaryDto> summaries(Collection<Listing> listings) {
