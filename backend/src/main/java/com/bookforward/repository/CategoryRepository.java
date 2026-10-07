@@ -11,4 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface CategoryRepository extends JpaRepository<Category, UUID> {
     List<Category> findAllByOrderByNameAsc();
+    Optional<Category> findByNameIgnoreCase(String name);
+    Optional<Category> findBySlug(String slug);
 }
