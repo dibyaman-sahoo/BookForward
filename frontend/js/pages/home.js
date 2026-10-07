@@ -14,8 +14,8 @@ export default async function (root) {
         <div class="row"><a class="btn primary" href="#/browse">Browse books</a><a class="btn" href="#/${auth.user ? 'sell' : 'register'}">List a book</a></div>
       </div>
       <div class="stage" aria-hidden="true"><div class="shelf">
-        ${[['one', 'Calculus', 'Vol. I'], ['two', 'Physics', 'NCERT'], ['three', 'Organic Chem', 'Reference']].map(([c, t, s]) => html`
-        <div class="book3d ${c}"><div class="f">${t}<small>${s}</small></div><div class="b"></div><div class="s"></div><div class="p"></div><div class="t"></div><div class="m"></div></div>`)}
+        ${[['one', 'Mathematics', 'Textbook', '∑'], ['two', 'Programming', 'Guide', '{ }'], ['three', 'Literature', 'Classic', '✎']].map(([c, t, s, i]) => html`
+        <div class="book3d ${c}"><div class="f"><span class="ic">${i}</span>${t}<small>${s}</small></div><div class="b"></div><div class="s"></div><div class="p"></div><div class="t"></div><div class="m"></div></div>`)}
       </div></div>
     </section>
     <section class="reveal" style="margin-block:2rem"><h2>Browse by subject</h2><div id="cats" class="row"></div></section>
