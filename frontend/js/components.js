@@ -13,7 +13,7 @@ export function bookCard(b) {
     <a class="cover" href="#/listing/${b.id}" aria-label="${b.title}">${b.coverUrl ? html`<img src="${fileUrl(b.coverUrl)}" alt="Cover of ${b.title}" loading="lazy" decoding="async">` : ''}</a>
     <button class="heart ${saved ? 'on' : ''}" data-save="${b.id}" aria-pressed="${saved}" aria-label="${saved ? 'Remove from saved' : 'Save book'}">${saved ? '♥' : '♡'}</button>
     <div class="body"><h3><a href="#/listing/${b.id}" style="color:inherit">${b.title}</a></h3>
-      <div class="muted small">${b.author}</div>
+      <div class="muted small">${[b.author, b.city && '📍 ' + b.city].filter(Boolean).join(' · ')}</div>
       <div class="row between" style="margin-top:.5rem"><span class="price">${money(b.price)}</span>${b.status !== 'ACTIVE' ? chip(b.status) : html`<span class="chip">${label(b.bookCondition)}</span>`}</div></div></article>`;
 }
 
