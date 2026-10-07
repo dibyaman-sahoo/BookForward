@@ -24,6 +24,7 @@ public class SearchService {
             case "priceAsc" -> Sort.by(Sort.Order.asc("price"), Sort.Order.desc("createdAt"));
             case "priceDesc" -> Sort.by(Sort.Order.desc("price"), Sort.Order.desc("createdAt"));
             case "newest" -> Sort.by(Sort.Order.desc("createdAt"));
+            case "nearest" -> (c.nearLat() != null && c.nearLon() != null) ? Sort.unsorted() : Sort.by(Sort.Order.desc("createdAt"));
             default -> hasQuery ? Sort.unsorted() : Sort.by(Sort.Order.desc("createdAt"));
         };
         Pageable pageable = PageRequest.of(Math.max(page, 0), Math.min(Math.max(size, 1), 50), s);
