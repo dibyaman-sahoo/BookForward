@@ -24,7 +24,7 @@ public class Listing extends BaseEntity {
     @Column(length = 200, nullable = false)
     private String title;
 
-    @Column(length = 150, nullable = false)
+    @Column(length = 150)
     private String author;
 
     @Column(length = 150)
@@ -53,6 +53,25 @@ public class Listing extends BaseEntity {
 
     @Enumerated(EnumType.STRING) @Column(nullable = false, length = 20)
     private ListingStatus status;
+
+    @Column(length = 200)
+    private String addressLine;
+
+    @Column(length = 150)
+    private String area;
+
+    @Column(length = 100)
+    private String city;
+
+    @Column(length = 100)
+    private String state;
+
+    @Column(length = 20)
+    private String postalCode;
+
+    private Double latitude;
+
+    private Double longitude;
 
     @Column(length = 500)
     private String moderationReason;
