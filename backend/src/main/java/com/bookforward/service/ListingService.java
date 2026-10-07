@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 public class ListingService {
-    static final Set<ImageType> REQUIRED_IMAGES = EnumSet.of(ImageType.FRONT_COVER, ImageType.DETAILS_PAGE, ImageType.INDEX_PAGE);
+    static final Set<ImageType> REQUIRED_IMAGES = EnumSet.of(ImageType.FRONT_COVER);
     private static final int MAX_EXTRA_IMAGES = 5;
 
     private final ListingRepository listings;
@@ -176,14 +176,14 @@ public class ListingService {
             Set<ImageType> missing = EnumSet.copyOf(REQUIRED_IMAGES);
             missing.removeAll(have);
             throw ApiException.unprocessable("MISSING_EVIDENCE_IMAGES",
-                    "Three evidence photos are required (front cover, book-details page, index page). Missing: " + missing);
+                    "A front cover photo is required. Missing: " + missing);
         }
     }
 
     private void apply(Listing l, ListingRequest r) {
-        l.setCategory(categories.findById(r.categoryId()).orElseThrow(() -> ApiException.badRequest("UNKNOWN_CATEGORY", "Choose a valid category")));
+        l.setCategory(resolveCategory(r));
         l.setTitle(r.title().trim());
-        l.setAuthor(r.author().trim());
+        l.setAuthor(blankToNull(r.author()));
         l.setPublisher(blankToNull(r.publisher()));
         l.setIsbn(blankToNull(r.isbn()));
         l.setDescription(blankToNull(r.description()));
@@ -192,6 +192,31 @@ public class ListingService {
         l.setNcertApplicable(r.ncertApplicable());
         l.setBookCondition(r.bookCondition());
         l.setPrice(r.price());
+        if (r.latitude() != null && (r.latitude() < -90 || r.latitude() > 90)) throw ApiException.badRequest("BAD_LOCATION", "Latitude is out of range");
+        if (r.longitude() != null && (r.longitude() < -180 || r.longitude() > 180)) throw ApiException.badRequest("BAD_LOCATION", "Longitude is out of range");
+        l.setAddressLine(blankToNull(r.addressLine()));
+        l.setArea(blankToNull(r.area()));
+        l.setCity(blankToNull(r.city()));
+        l.setState(blankToNull(r.state()));
+        l.setPostalCode(blankToNull(r.postalCode()));
+        l.setLatitude(r.latitude());
+        l.setLongitude(r.longitude());
+    }
+
+    private Category resolveCategory(ListingRequest r) {
+        if (r.categoryId() != null) {
+            return categories.findById(r.categoryId()).orElseThrow(() -> ApiException.badRequest("UNKNOWN_CATEGORY", "Choose a valid category"));
+        }
+        String name = r.categoryOther() == null ? "" : r.categoryOther().trim().replaceAll("\\s+", " ");
+        if (name.isEmpty()) throw ApiException.badRequest("UNKNOWN_CATEGORY", "Choose a subject or type your own");
+        String slug = name.toLowerCase().replaceAll("[^a-z0-9]+", "-").replaceAll("^-+|-+$", "");
+        if (slug.isEmpty()) throw ApiException.badRequest("UNKNOWN_CATEGORY", "Write the subject name using English letters or numbers");
+        return categories.findByNameIgnoreCase(name).or(() -> categories.findBySlug(slug)).orElseGet(() -> {
+            Category c = new Category();
+            c.setName(name);
+            c.setSlug(slug);
+            return categories.save(c);
+        });
     }
 
     private static String blankToNull(String s) { return s == null || s.isBlank() ? null : s.trim(); }
@@ -219,6 +244,8 @@ public class ListingService {
         return new ListingDetailDto(mapper.summary(l, cover), l.getPublisher(), l.getIsbn(), l.getDescription(),
                 l.getCategory().getId(), imgs.stream().map(mapper::image).toList(), isSaved,
                 reviews.averageForSeller(sellerId, ReviewStatus.VISIBLE), reviews.countForSeller(sellerId, ReviewStatus.VISIBLE),
-                owner ? l.getModerationReason() : null, owner);
+                owner ? l.getModerationReason() : null, owner,
+                owner ? l.getAddressLine() : null, l.getArea(), l.getPostalCode(),
+                owner ? l.getLatitude() : null, owner ? l.getLongitude() : null);
     }
 }
