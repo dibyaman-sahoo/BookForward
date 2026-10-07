@@ -55,6 +55,7 @@ function renderNav(path) {
   const link = (href, text, extra = '') => html`<a href="#${href}" class="${path === href ? 'active' : ''}" ${extra}>${text}</a>`;
   const u = auth.user;
   mount($('#navLinks'), html`
+    ${link('/', 'Home')}
     ${link('/browse', 'Browse')}
     ${u ? html`
       ${link('/sell', 'Sell a book')}${link('/saved', 'Saved')}${link('/dashboard', 'Dashboard')}${link('/messages', 'Messages')}
