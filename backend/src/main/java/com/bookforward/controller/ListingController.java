@@ -37,8 +37,10 @@ public class ListingController {
             @RequestParam(required = false) Boolean ncert, @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice, @RequestParam(required = false) BookCondition condition,
             @RequestParam(required = false) String availability, @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String city, @RequestParam(required = false) Double nearLat,
+            @RequestParam(required = false) Double nearLon,
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "12") int size) {
-        return search.search(new SearchCriteria(query, category, level, board, ncert, minPrice, maxPrice, condition, availability, sort), page, size);
+        return search.search(new SearchCriteria(query, category, level, board, ncert, minPrice, maxPrice, condition, availability, sort, city, nearLat, nearLon), page, size);
     }
 
     @PostMapping("/api/listings")
