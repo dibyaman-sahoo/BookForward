@@ -1,91 +1,134 @@
-# BookForward — *Give Every Book Another Chapter.*
+# 📚 BookForward — *Give Every Book Another Chapter.*
 
-An educational book reuse, discovery and resale marketplace. Users list school, college and exam-prep books with three mandatory evidence photos, discover them through search/filter/sort, save favourites, send purchase requests, move orders through a validated lifecycle, chat in real time, receive notifications and review sellers. Moderators and admins handle reports, listing moderation, users and audit logs.
+A marketplace where students buy and sell **pre-owned books** — school and college textbooks, exam-prep, programming and general reading — and find the **nearest listings first**.
 
-Implementation of the *BookForward Finalized B.Tech Major Project Blueprint*.
+**Live demo:** https://bookforward-1.onrender.com
+*(hosted on a free tier, so the first load after a quiet period can take about a minute while the server wakes up)*
 
-> **Honest status:** this repository was generated in an environment without network access, so the **Java backend has not been compiled or run**, and the UI has not been exercised in a browser. Only the frontend JavaScript syntax was checked (`scripts/check-frontend.sh`). Expect to fix small compile/runtime issues on first build — see [Verification status](#verification-status).
+> B.Tech major project · Java 21 · Spring Boot · PostgreSQL · plain HTML/CSS/JavaScript
 
-## Tech stack
+---
+
+## ✨ What you can do
+
+| For buyers | For sellers | For everyone |
+|---|---|---|
+| Search by title, author, subject, city | List a book with only a **front cover photo required** (up to 5 photos) | Real-time chat between buyer and seller |
+| **Near me** — nearest books first, remembered for next visit | One-tap **Detect my location** fills area, city, state and pincode | Notifications for requests and orders |
+| Filter by academic level, subject, board, condition, price | Optional author, publisher, ISBN and board | Saved books and a simple profile |
+| Send a purchase request, track the order | Choose a subject or type your own with **Other** | Works on phone and PC |
+
+---
+
+## 🖼️ Screenshots
+
+> The screenshots below were captured from the real frontend running against sample demo data, so every screen looks populated.
+
+### Home
+The 3D book shelf, subject chips, latest listings and a four-step "How it works".
+
+| PC | Phone |
+|---|---|
+| <img src="screens/desktop-01-home.png" width="560" alt="Home on PC"> | <img src="screens/mobile-01-home.png" width="220" alt="Home on phone"> |
+
+### Browse with nearby-first results
+Books in your own city come first. Use **Near me**, or type another city to check what's available elsewhere. Typing in the search box ignores location and searches everywhere.
+
+| PC | Phone |
+|---|---|
+| <img src="screens/desktop-04-browse-nearby.png" width="560" alt="Browse on PC"> | <img src="screens/mobile-04-browse-nearby.png" width="220" alt="Browse on phone"> |
+
+### Book details
+Photo gallery, condition, price, location (area and city), seller rating and reviews. The seller's exact flat or house number stays private.
+
+| PC | Phone |
+|---|---|
+| <img src="screens/desktop-05-listing.png" width="560" alt="Listing on PC"> | <img src="screens/mobile-05-listing.png" width="220" alt="Listing on phone"> |
+
+### Sell a book, with location detection
+**Detect my location** reads the browser location and fills area, city, state and pincode through OpenStreetMap. The seller then only adds a flat or house number. Only the front cover photo is mandatory.
+
+| PC | Phone |
+|---|---|
+| <img src="screens/desktop-06-sell-location.png" width="560" alt="Sell form on PC"> | <img src="screens/mobile-06-sell-location.png" width="220" alt="Sell form on phone"> |
+
+### Sign in and create an account
+
+| PC | Phone |
+|---|---|
+| <img src="screens/desktop-02-login.png" width="560" alt="Sign in on PC"> | <img src="screens/mobile-02-login.png" width="220" alt="Sign in on phone"> |
+| <img src="screens/desktop-03-register.png" width="560" alt="Register on PC"> | <img src="screens/mobile-03-register.png" width="220" alt="Register on phone"> |
+
+### Dashboard: listings, requests and orders
+
+| PC | Phone |
+|---|---|
+| <img src="screens/desktop-07-dashboard.png" width="560" alt="Dashboard on PC"> | <img src="screens/mobile-07-dashboard.png" width="220" alt="Dashboard on phone"> |
+
+### Messages
+
+| PC | Phone |
+|---|---|
+| <img src="screens/desktop-08-messages.png" width="560" alt="Messages on PC"> | <img src="screens/mobile-08-messages.png" width="220" alt="Messages on phone"> |
+
+### Saved books, notifications and profile
+
+| Screen | PC | Phone |
+|---|---|---|
+| Saved | <img src="screens/desktop-09-saved.png" width="420" alt="Saved on PC"> | <img src="screens/mobile-09-saved.png" width="180" alt="Saved on phone"> |
+| Notifications | <img src="screens/desktop-10-notifications.png" width="420" alt="Notifications on PC"> | <img src="screens/mobile-10-notifications.png" width="180" alt="Notifications on phone"> |
+| Profile | <img src="screens/desktop-11-profile.png" width="420" alt="Profile on PC"> | <img src="screens/mobile-11-profile.png" width="180" alt="Profile on phone"> |
+
+---
+
+## 🧰 Tech stack
+
 | Layer | Technology |
 |---|---|
-| Backend | Java 21, Spring Boot 3.3 (Web, Data JPA, Security, Validation, WebSocket/STOMP, Actuator), Flyway, jjwt, Lombok |
-| Database | PostgreSQL 16 (UUID keys, versioned migrations) |
-| Frontend | Framework-free HTML5 / CSS3 / ES modules, hash-routed SPA, CSS-3D hero, `@stomp/stompjs` (CDN, pinned) |
-| Ops | Docker, Docker Compose, GitHub Actions, nginx (frontend image) |
+| Backend | Java 21, Spring Boot 3.3 (Web, Data JPA, Security, Validation, WebSocket/STOMP, Actuator), Flyway, JWT |
+| Database | PostgreSQL 16 (Neon in production) |
+| Frontend | Plain HTML5 / CSS3 / ES modules, hash-routed single-page app, CSS 3D hero |
+| Maps and location | Browser geolocation + OpenStreetMap Nominatim (free, no API key) |
+| Deployment | Docker, Render (backend and static frontend), Neon (database) |
 
-## Architecture
-Modular monolith (`backend/src/main/java/com/bookforward`): `config`, `controller`, `service`, `repository`, `entity`, `dto`, `mapper`, `security`, `websocket`, `payment`, `storage`, `search`, `notification`, `admin`, `exception`, `util`. REST for durable resources; STOMP over WebSocket (`/ws`) for messaging, typing, presence and live notifications. PostgreSQL is the source of truth.
-
-Provider-neutral boundaries: `StorageProvider` (local disk adapter), `PaymentProvider` (offline adapter; payment is disabled by default), `PresenceService` and `RateLimiter` (in-memory adapters, Redis-ready), `SearchService` (PostgreSQL specifications; swap for OpenSearch later).
-
-### Key rules implemented
-- JWT auth (BCrypt-12 passwords); `logout` bumps a per-user token version so old tokens die. Roles: `USER`, `MODERATOR`, `ADMIN` (stored in `user_roles`).
-- Ownership enforced in services; other users' listings/orders return 404 (no IDOR leakage).
-- Publishing requires front-cover, details-page and index-page images; uploads validated by size, extension, declared type **and magic bytes**; keys are random UUIDs.
-- Requests: `PENDING → ACCEPTED | REJECTED | CANCELLED`. Accepting reserves the listing (row-locked), creates an order and rejects rival requests.
-- Orders: `CONFIRMED → HANDOVER → COMPLETED` (or `CANCELLED`), seller marks handover, buyer confirms receipt, history recorded with actor/reason. Completion marks the listing `SOLD`; cancellation re-opens it.
-- Reviews: buyer only, completed orders only, one per order, rating 1–5.
-- Moderation: reports, hide/reject/approve listings, suspend users, hide reviews; all audited. Admin-only role/status/audit endpoints.
-- STOMP: token required on CONNECT; subscriptions limited to `/user/queue/**` and `/topic/presence`; sends limited to `/app/chat.send|typing`; membership checked per message; presence tracks sessions per user and broadcasts the full online set.
-- Rate limits on login/register, uploads and messages; CORS restricted to `FRONTEND_ORIGIN`; correlation-id logging; uniform JSON errors.
-
-## Project structure
+## 🗂️ Project structure
 ```
-backend/            Spring Boot app (pom.xml, src/main, src/test, db/migration)
-frontend/           Static SPA (index.html, css/, js/, js/pages/, Dockerfile, nginx.conf)
-database/           Schema notes + seed guidance
-docs/ scripts/ tests/ docker/ .github/
-Dockerfile          Backend image   |   docker-compose.yml   Postgres + backend + frontend (+ optional redis profile)
-.env.example
+backend/            Spring Boot app (controllers, services, entities, Flyway migrations)
+frontend/           Static single-page app (index.html, css/, js/, js/pages/)
+screens/            Screenshots used in this README (PC and phone)
+database/  docs/  scripts/  tests/  docker/  .github/
+Dockerfile          Backend image
+docker-compose.yml  Postgres + backend + frontend
+.env.example        All configuration variables
 ```
 
-## Quick start (Docker)
+## 🚀 Run it locally
 ```bash
-cp .env.example .env        # set DB_PASSWORD, JWT_SECRET (32+ chars), optionally ADMIN_EMAIL/ADMIN_PASSWORD
+cp .env.example .env        # set DB_PASSWORD and JWT_SECRET (32+ characters)
 docker compose up --build   # frontend http://localhost:5173 · API http://localhost:8080
 ```
+If the API is not on `http://localhost:8080`, edit `apiBase` in `frontend/env.js`.
 
-## Local development
-Prerequisites: JDK 21, Maven 3.9+, PostgreSQL 14+ (needs `gen_random_uuid()`), Node 18+ (syntax check only).
-```bash
-createdb bookforward && createuser bookforward   # then set a password
-export DB_PASSWORD=... JWT_SECRET=$(openssl rand -base64 48) ADMIN_EMAIL=admin@example.com ADMIN_PASSWORD=ChangeMe123
-cd backend && mvn spring-boot:run          # Flyway migrates on startup
-./scripts/dev-frontend.sh                  # serves frontend on :5173
-```
-Edit `frontend/env.js` (`apiBase`) if the API is not on `http://localhost:8080`.
+## ☁️ Deploy (Render + Neon)
+1. **Neon:** create a free Postgres project and use the **direct** host (without `-pooler`).
+2. **Backend (Render Web Service, Docker):** set `DB_URL` (`jdbc:postgresql://<host>/<db>?sslmode=require`), `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`, `SERVER_PORT=10000`, `FRONTEND_ORIGIN`, `WS_ALLOWED_ORIGINS`.
+3. **Frontend (Render Static Site):** publish directory `frontend`, with `frontend/env.js` pointing at the backend URL.
+4. Set `FRONTEND_ORIGIN` and `WS_ALLOWED_ORIGINS` to the frontend URL, then redeploy the backend.
 
-## Environment variables
-See `.env.example`. Required: `DB_PASSWORD`, `JWT_SECRET`. Others: `DB_URL`, `DB_USERNAME`, `FRONTEND_ORIGIN`, `WS_ALLOWED_ORIGINS`, `STORAGE_PROVIDER`/`STORAGE_LOCAL_DIR`, `PAYMENT_ENABLED`/`PAYMENT_PROVIDER`, `ADMIN_EMAIL`/`ADMIN_PASSWORD`, `LOG_LEVEL`, `HIBERNATE_DDL_AUTO` (default `validate`; if a mapping mismatch blocks startup set `none` temporarily and report it).
+To run the frontend against your own local backend, change `apiBase` in `frontend/env.js` back to `http://localhost:8080`.
 
-## API overview
-Auth `POST /api/auth/{register,login,logout}`, `GET /api/auth/me` · Listings `GET/POST /api/listings`, `GET/PUT/PATCH/DELETE /api/listings/{id}`, `POST …/publish|unpublish`, `POST …/images?type=FRONT_COVER|DETAILS_PAGE|INDEX_PAGE|EXTRA`, `GET /api/me/listings` · Search `GET /api/search/listings?query=&category=&level=&board=&ncert=&condition=&minPrice=&maxPrice=&availability=&sort=&page=` · Saved `GET /api/saved`, `POST/DELETE /api/saved/{id}` · Requests/Orders `POST /api/requests`, `GET /api/requests/mine?role=`, `PATCH /api/requests/{id}/status`, `GET /api/orders`, `PATCH /api/orders/{id}/status`, `POST /api/orders/{id}/payments` (503 unless enabled) · Chat `GET/POST /api/conversations`, `GET/POST …/{id}/messages`, `GET /api/presence` · Notifications `GET /api/notifications`, `PATCH …/{id}/read`, `POST …/read-all` · Reviews `POST /api/reviews`, `GET /api/listings/{id}/reviews` · Reports/Admin `POST /api/reports`, `/api/admin/{reports,listings,users,audit}` · Health `GET /actuator/health` (+ `/liveness`, `/readiness`).
-STOMP: connect to `/ws` with header `Authorization: Bearer <jwt>`; subscribe `/user/queue/{messages,notifications,typing,errors}` and `/topic/presence`; send to `/app/chat.send` `{conversationId, content}` and `/app/chat.typing`.
+**Free-tier notes:** the server sleeps after about 15 minutes of inactivity. Uploaded photos are stored on the server disk, which free Render resets on restart, so for a permanent setup move photos to cloud storage such as Cloudinary or S3.
 
-## Testing
-`cd backend && mvn verify` runs unit tests (order state machine, JWT service). **Not yet written** (blueprint targets): repository/integration tests with Testcontainers, WebSocket tests, security tests for access control and uploads, and the E2E flow. See `tests/README.md`.
+## 🔐 How it works
+- Sign-in uses JWT tokens with BCrypt-hashed passwords; roles are `USER`, `MODERATOR` and `ADMIN`.
+- Publishing a listing needs a front-cover photo; uploads are checked for size, file type and real file content.
+- A request moves `PENDING → ACCEPTED | REJECTED | CANCELLED`. Accepting reserves the book and creates an order.
+- An order moves `CONFIRMED → HANDOVER → COMPLETED` (or `CANCELLED`). Only the buyer of a completed order can leave a review.
+- **Privacy:** buyers see a listing's area, city, state and pincode. The flat or house number and exact coordinates are visible only to the seller.
+- Moderators can review reports and hide listings; admin actions are logged.
 
-## Verification status
-| Item | Status |
-|---|---|
-| Frontend JS syntax | checked with Node |
-| Backend compile / unit tests | **not run** (no Maven/network in build environment) |
-| Flyway migrations vs. JPA mappings | **not run** — most likely source of first-start errors |
-| Browser flows, responsive layout, console | **not exercised** |
-| Docker builds | **not run** |
+## 🧭 Roadmap
+Cloud photo storage, email notifications, a real payment gateway, a map view of listings, and integration tests.
 
-## Security notes
-Secrets come from environment only. The JWT is kept in `localStorage` (simple, XSS-sensitive): all dynamic UI output goes through an escaping `html` template; add a strict CSP at your reverse proxy for production. Use HTTPS in production; set `forward-headers` appropriately behind a proxy. Presence broadcasts the online user IDs to every authenticated user (acceptable for this scope; restrict to conversation partners if privacy requires).
-
-## Deployment
-Same images everywhere: backend container + managed PostgreSQL, frontend container (or any static host with `env.js` pointing at the API). Render/Railway/AWS/Azure/GCP/VPS patterns are in `docs/`. Back up PostgreSQL (`pg_dump`) and the uploads volume; roll back by redeploying the previous image tag (Flyway migrations are forward-only — write compensating migrations).
-
-## Screenshots
-_Add screenshots here after running the app._
-
-## Known gaps / future work
-Redis adapters, OpenSearch, background workers, email/push notifications, real payment gateway adapter, object-storage adapter, integration/E2E tests, report-a-user/review buttons in UI, separate `roles` master table (currently `user_roles` enum values), `presence` table (presence is in-memory with `users.last_seen_at`).
-
-## Contributing
-Branch from `main`, keep migrations additive, add tests with behaviour changes, keep controllers thin.
+## 📄 License
+See [LICENSE](LICENSE).
